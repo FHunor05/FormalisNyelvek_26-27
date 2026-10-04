@@ -26,8 +26,6 @@ class DFAProblem(Problem):
             )
 
     def is_chosen_problem(self, args) -> bool:
-        # A keretrendszer ez alapján tudja, hogy a mi feladatunkat kell lefuttatnia.
-        # Akkor választja ezt a feladatot, ha a parancssorban megadták a --check argumentumot.
         return (
             hasattr(args, "check")
             and args.check is not None
@@ -43,26 +41,30 @@ class DFAProblem(Problem):
         if not input_file or check_param is None:
             return
 
-        words_to_check = check_param.split(",") if check_param else []
+        # Vessző mentén bontás, a felesleges szóközök eltávolítása a szavak széléről
+        words_to_check = [w.strip() for w in check_param.split(",")]
 
-        # 1. Bemeneti fájl beolvasása
+        # 1. Bemeneti fájl beolvasása (a sorok pozíciójának megőrzésével)
         try:
             with open(input_file, "r", encoding="utf-8") as f:
-                lines = [line.strip() for line in f if line.strip()]
+                raw_lines = f.read().splitlines()
         except FileNotFoundError:
             return
 
+        lines = [line.strip() for line in raw_lines]
         if len(lines) < 4:
             return
 
         states = lines[0].split()
         alphabet = lines[1].split()
         start_state = lines[2].strip()
-        accept_states = set(lines[3].split())
+        accept_states = set(lines[3].split())  # Üres 4. sor esetén set() lesz
 
         # Átmenetek feltöltése: (aktuális_állapot, szimbólum) -> következő_állapot
         transitions = {}
         for line in lines[4:]:
+            if not line:
+                continue
             parts = line.split()
             if len(parts) == 3:
                 src, symbol, dst = parts
