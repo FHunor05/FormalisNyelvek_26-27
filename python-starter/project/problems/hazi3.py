@@ -5,7 +5,6 @@ from project.problem import Problem
 
 class MinimizeProblem(Problem):
     """Determinisztikus véges automata (DFA) minimalizálása
-
     a laboron tanult táblázatkitöltő (páronkénti megkülönböztető)
     algoritmus alapján.
     """
