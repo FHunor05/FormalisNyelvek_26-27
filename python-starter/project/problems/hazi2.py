@@ -4,8 +4,7 @@ from project.problem import Problem
 
 class DeterminizeProblem(Problem):
     """Nemdeterminisztikus véges automata (NFA) determinizálása (DFA-vá alakítása)
-
-    az előadáson tanult részhalmaz-konstrukciós (subset construction)
+     az előadáson tanult részhalmaz-konstrukciós (subset construction)
     algoritmus alapján.
     """
 
@@ -57,7 +56,8 @@ class DeterminizeProblem(Problem):
         # Levágjuk a felesleges szóközöket a sorok elejéről és végéről
         lines = [line.strip() for line in raw_lines]
 
-        # Fejléc ellenőrzése: legalább 4 sornak lennie kell (állapotok, ábécé, kezdőállapot, végállapotok)
+        # Fejléc ellenőrzése: legalább 4 sornak lennie kell
+        # (állapotok, ábécé, kezdőállapot, végállapotok)
         if len(lines) < 4:
             sys.stderr.write(
                 "Hiba: Hiányos bemeneti fejléc (legalább 4 sor szükséges).\n"
