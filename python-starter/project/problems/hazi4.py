@@ -10,7 +10,6 @@ class RegexProblem(Problem):
     segítségével, string-függvények használata nélkül.
     """
 
-    # A segédletben megadott alapkifejezés a 2-5. feladatokhoz:
     # 1. csoport: Teljes sor
     # 2. csoport: Dátum és idő (pl. "10-15 10:18:47.782")
     # 3. csoport: Process ID (PID)
@@ -61,7 +60,7 @@ class RegexProblem(Problem):
         if not input_file or task_num is None:
             return
 
-        # 1. LÉPÉS: Bemeneti fájl beolvasása és sorokra bontása regexszel (splitlines/strip helyett)
+        # 1. LÉPÉS: Bemeneti fájl beolvasása és sorokra bontása regexszel (string-függvények helyett)
         try:
             with open(
                 input_file, "r", encoding="utf-8", errors="replace"
@@ -92,7 +91,7 @@ class RegexProblem(Problem):
             return
 
         # 3. LÉPÉS: Eredmény kiírása a kimeneti fájlba
-        if output_file:
+        if output_file and result is not None:
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(result + "\n")
 
@@ -118,17 +117,22 @@ class RegexProblem(Problem):
                 r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ W PackageManager *:"
             ),
             # 8. az összes ExoPlayer-es debug (D) infót
-            re.compile(
-                r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ D .*ExoPlayer"
-            ),
+            re.compile(r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ D .*ExoPlayer"),
             # 9. az összes java állomány pozíciót tartalmazó hibát és warningot (E/W ... .java:)
             re.compile(r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [EW] .+\.java:"),
             # 10. az összes olyan sort, ami tartalmazza a Thread szót a message részben (nem a tagben) -> tag: message
-            # FONTOS: (.+?) nem-mohó illesztés a tagre, különben a message-beli ':' karakterig nyújtózkodik!
             re.compile(
-                r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [IDVEFAW] .+?: .*Thread"
+                r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [IDVEFAW] [^:]+: .*Thread"
             ),
         ]
+
+        counts = [0] * len(patterns)
+        for line in lines:
+            for i, pat in enumerate(patterns):
+                if pat.search(line):
+                    counts[i] += 1
+
+        return "\n".join(str(c) for c in counts)
 
     def _solve_task_2(self, lines: list[str]) -> str:
         """2. feladat (--rgx 2): Az összes hiba (E sorok) származási helye (stack trace .java fájlok)."""
@@ -172,7 +176,6 @@ class RegexProblem(Problem):
 
     def _solve_task_5(self, lines: list[str]) -> str:
         """5. feladat (--rgx 5): A fő szálon történt hibák (E) száma (ahol PID == TID)."""
-        # A (\1) visszahivatkozás biztosítja, hogy a 2. szám (TID) megegyezzen az 1. számmal (PID)
         main_thread_err_pattern = re.compile(
             r"^[0-9-]+ [0-9:.]+ +([0-9]+) +\1 E "
         )
