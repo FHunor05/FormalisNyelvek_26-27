@@ -104,13 +104,13 @@ class RegexProblem(Problem):
             # 2. az összes sort, amelyik 10. hónap 15-én 10 óra 18 perc és 51 másodperckor jött létre
             re.compile(r"^10-15 10:18:51\."),
             # 3. az összes sort, amelyik 51 másodperckor jött létre (mindegy a perc)
-            re.compile(r"^[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:51\."),
+            re.compile(r"^[0-9-]+ [0-9]{2}:[0-9]{2}:51\."),
             # 4. az összes lowmemorykiller taget tartalmazó sor
             re.compile(
                 r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [IDVEFAW] lowmemorykiller *:"
             ),
             # 5. az összes 10:18:51 kor keletkező 221-es process id-jú sort
-            re.compile(r"^[0-9]{2}-[0-9]{2} 10:18:51\.[0-9]+ +221 +[0-9]+ "),
+            re.compile(r"^[0-9-]+ 10:18:51\.[0-9]+ +221 +[0-9]+ "),
             # 6. az összes hibát tartalmazó sort (E)
             re.compile(r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ E "),
             # 7. az összes warningot (W) amit a PackageManager küld
@@ -119,23 +119,16 @@ class RegexProblem(Problem):
             ),
             # 8. az összes ExoPlayer-es debug (D) infót
             re.compile(
-                r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ D [^:]*ExoPlayer[^:]*:"
+                r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ D .*ExoPlayer"
             ),
             # 9. az összes java állomány pozíciót tartalmazó hibát és warningot (E/W ... .java:)
             re.compile(r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [EW] .+\.java:"),
-            # 10. az összes olyan sort, ami tartalmazza a Thread szót a message részben (nem a tagben)
+            # 10. az összes olyan sort, ami tartalmazza a Thread szót a message részben (nem a tagben) -> tag: message
+            # FONTOS: (.+?) nem-mohó illesztés a tagre, különben a message-beli ':' karakterig nyújtózkodik!
             re.compile(
                 r"^[0-9-]+ [0-9:.]+ +[0-9]+ +[0-9]+ [IDVEFAW] .+?: .*Thread"
             ),
         ]
-
-        counts = [0] * len(patterns)
-        for line in lines:
-            for i, pat in enumerate(patterns):
-                if pat.search(line):
-                    counts[i] += 1
-
-        return "\n".join(str(c) for c in counts)
 
     def _solve_task_2(self, lines: list[str]) -> str:
         """2. feladat (--rgx 2): Az összes hiba (E sorok) származási helye (stack trace .java fájlok)."""
